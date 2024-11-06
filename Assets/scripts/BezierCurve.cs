@@ -22,8 +22,7 @@ public class BezierCurve
         //     Vector3 curr = new Vector3();
         //     curr = B1(t) * P1 + B2(t) * P2 + B3(t) * P3 + B4(t) * P4;
         //     points[i] = curr;
-        // }
-
+        // }        
     }
 
     //weights based on parameter t \in [0,1]
