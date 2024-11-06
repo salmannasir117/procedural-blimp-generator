@@ -14,11 +14,11 @@ public class BezierCurve
         P2 = p2;
         P3 = p3;
         P4 = p4;
-        num_points = n + 1; //to account for i = n / num_points = 1
-        points = new Vector3[num_points];
+        num_points = n; //to account for i = n / num_points = 1
+        points = new Vector3[n];
 
-        for (int i = 0; i <= n; i++) {
-            float t = i / (float) n;
+        for (int i = 0; i < n; i++) {
+            float t = i / (float) (n - 1);
             Vector3 curr = new Vector3();
             curr = B1(t) * P1 + B2(t) * P2 + B3(t) * P3 + B4(t) * P4;
             points[i] = curr;
