@@ -20,7 +20,7 @@ public class main_script : MonoBehaviour
         Vector3 p2 = new Vector3(1, 2, 0);
         Vector3 p3 = new Vector3(2, 2, 0);
         Vector3 p4 = new Vector3(3, 0, 0);
-        test = new BezierCurve(p1, p2, p3, p4, 50);
+        test = new BezierCurve(p1, p2, p3, p4, 10);
 
         for (int i = 0; i < test.get_num_points(); i++) {
             Vector3 point = test.get_point(i);
