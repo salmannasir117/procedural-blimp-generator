@@ -1,7 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
 using UnityEngine;
 
 public class main_script : MonoBehaviour
@@ -9,26 +5,39 @@ public class main_script : MonoBehaviour
     // Start is called before the first frame update
     public int seed = 0;
     public BezierCurve test;
+
+    int num_wings = 3;
+    enum wing_type {
+        ORIGINAL = 0,
+        FANCY = 1,
+        OPTION_THREE = 2,
+    }
     void Start()
     {
         Random.InitState(seed);
        
-
+        int wing_number = Random.Range(0, num_wings);
+        wing_type wing = (wing_type) wing_number;
+        // Debug.Log(wing_number);
+        // Debug.Log(wing);
+        // for (int i = 0; i < 5; i++) {
+        //     Debug.Log(Random.Range(0, num_wings));
+        // }
+        wing = wing_type.FANCY;
         Color selected_color = Color.green;
         GameObject parent = new GameObject("parent");
         GameObject top_hull  = generate_top_hull_go(parent, selected_color);
         GameObject bottom_hull = generate_bottom_hull_go(parent, selected_color);
         GameObject back_hull = generate_back_hull_go(parent, selected_color);
+        GameObject left_wing = generate_left_wing(parent, selected_color, wing);
+        GameObject right_wing = generate_right_wing(parent, selected_color, wing);
         
         //test transformations. 
-        parent.transform.Translate(new Vector3(1, 0, 0));
-        parent.transform.localScale = new Vector3(2, 1, 1);
+        //https://docs.unity3d.com/ScriptReference/Transform.html
+        //localScale, Translate, Rotate (relativeTo = Space.self | Space.world, RotateAround
+        // parent.transform.Translate(new Vector3(1, 2, 0));
+        // parent.transform.localScale = new Vector3(2, 1, 1);
 
-        
-        
-
-        
-        
     }
 
     Vector3 [,] get_top_hull_points() {
@@ -51,23 +60,30 @@ public class main_script : MonoBehaviour
         return top_hull_go;
     }
     GameObject generate_bottom_hull_go(GameObject parent, Color color) {
-        Vector3[,] top_hull_points = get_top_hull_points();
-        Vector3[,] bottom_hull_points = new Vector3[4,4];
-        for (int i = 0; i < 4; i++) {
-            for (int j = 0; j < 4; j++) {
-                Vector3 curr = top_hull_points[i,j];
-                curr.y *= -1;
-                bottom_hull_points[i,j] = curr;
-            }
-        }
-        BezierPatch bottom_hull_patch = new BezierPatch(bottom_hull_points, 10);
-        GameObject bottom_hull_go = bottom_hull_patch.get_game_object("bottom hull", color);
-        int[] tris = bottom_hull_go.GetComponent<MeshFilter>().mesh.triangles;
-        System.Array.Reverse(tris);
-        bottom_hull_go.GetComponent<MeshFilter>().mesh.triangles = tris;
-        bottom_hull_go.GetComponent<MeshFilter>().mesh.RecalculateNormals();
-        bottom_hull_go.transform.parent = parent.transform;
-        return bottom_hull_go;
+        // Vector3[,] top_hull_points = get_top_hull_points();
+        // Vector3[,] bottom_hull_points = new Vector3[4,4];
+        // for (int i = 0; i < 4; i++) {
+        //     for (int j = 0; j < 4; j++) {
+        //         Vector3 curr = top_hull_points[i,j];
+        //         curr.y *= -1;
+        //         bottom_hull_points[i,j] = curr;
+        //     }
+        // }
+        // BezierPatch bottom_hull_patch = new BezierPatch(bottom_hull_points, 10);
+        // GameObject bottom_hull_go = bottom_hull_patch.get_game_object("bottom hull", color);
+        // int[] tris = bottom_hull_go.GetComponent<MeshFilter>().mesh.triangles;
+        // System.Array.Reverse(tris);
+        // bottom_hull_go.GetComponent<MeshFilter>().mesh.triangles = tris;
+        // bottom_hull_go.GetComponent<MeshFilter>().mesh.RecalculateNormals();
+        // bottom_hull_go.transform.parent = parent.transform;
+        // return bottom_hull_go;
+
+        GameObject bottom_hull = generate_top_hull_go(parent, color);
+        bottom_hull.name = "bottom hull";
+        bottom_hull.transform.Translate(new Vector3(3, 0, 0));
+        bottom_hull.transform.Rotate(new Vector3(0, 0, 180), Space.Self);
+        return bottom_hull;
+
     }
 
     GameObject generate_back_hull_go(GameObject parent, Color color) {
@@ -82,7 +98,112 @@ public class main_script : MonoBehaviour
         back_hull_go.transform.parent = parent.transform;
         return back_hull_go;
     }
-     void OnDrawGizmosSelected() {
+
+    Vector3[,] get_original_wing_points() {
+        return new Vector3[,]{
+            {new Vector3(0,0,2), new Vector3(0,0,2.5f), new Vector3(0,0,3), new Vector3(0,0,5),},
+            {new Vector3(-1,0,2.5f), new Vector3(-1,0,3f), new Vector3(-1,0,3.5f), new Vector3(-1,0,5),},
+
+            {new Vector3(-2,0,3f), new Vector3(-2,0,3.5f), new Vector3(-2,0,4f), new Vector3(-2,0,5),},
+
+            {new Vector3(-3,0,3.5f), new Vector3(-3,0,4f), new Vector3(-3,0,4.5f), new Vector3(-3,0,5),},
+        };
+    }
+
+    Vector3[,] get_fancy_wing_points() {
+        return new Vector3[,]{
+            {new Vector3(0,0,2), new Vector3(0,0,2.5f), new Vector3(0,0,3f), new Vector3(0,0,3.5f),},
+            {new Vector3(-1,0,3.5f), new Vector3(-1,0,4f), new Vector3(-1,0,4.5f), new Vector3(-1,0,4.35f),},
+
+            {new Vector3(-2.8f,0,4f), new Vector3(-2.8f,0,4.5f), new Vector3(-2.8f,0,5f), new Vector3(-2.8f,0,5),},
+
+            {new Vector3(-3,1f,4.5f), new Vector3(-3,1f,5f), new Vector3(-3,1f,5.5f), new Vector3(-3,1f,6),},
+        };
+    }
+    GameObject generate_left_wing(GameObject parent, Color color, wing_type wing) {
+        Vector3 [,] points; 
+        switch (wing) {
+            case wing_type.FANCY: {
+                points = get_fancy_wing_points();
+                break;
+            }
+            case wing_type.ORIGINAL:
+            default: {
+                points = get_original_wing_points();
+                break;
+            }
+        }
+        
+        BezierPatch bp = new BezierPatch(points, 10);
+        GameObject go = bp.get_game_object("left wing", color);
+        go.transform.parent = parent.transform;
+        return go;
+    }
+    
+    GameObject generate_right_wing(GameObject parent, Color color, wing_type wing) {
+        Vector3 rotate;
+        Vector3 [,] points; 
+        switch (wing) {
+            case wing_type.FANCY: {
+                points = get_fancy_wing_points();
+                break;
+            }
+            case wing_type.ORIGINAL:
+            default: {
+                points = get_original_wing_points();
+                break;
+            }
+        }
+        reverse_points(points);
+        flip_heights(points);   //for when i rotate about the z axis
+        BezierPatch bp = new BezierPatch(points, 10);
+        GameObject go = bp.get_game_object("left wing", color);
+        go.transform.Translate(new Vector3(3, 0, 0));
+        go.transform.Rotate(new Vector3(0, 0, 180));
+        go.transform.parent = parent.transform;
+        return go;
+        // GameObject right_wing = generate_left_wing(parent, color, wing);
+        // right_wing.name = "right";
+        // right_wing.transform.Translate(new Vector3(3, 0, 0));
+        // right_wing.transform.Rotate(new Vector3(0, 0, 180), Space.Self);
+        // return right_wing;
+
+    }
+
+    void reverse_points(Vector3[,] points) {
+        //reverse each row of points.
+        for (int i = 0; i < points.GetLength(0); i++) {
+            for (int j = 0; j < points.GetLength(1) / 2; j++) {
+                Vector3 temp = points[i,j];
+                points[i, j] = points[i, points.GetLength(1) - j - 1];
+                points[i, points.GetLength(1) - j - 1] = temp;
+            }
+        }
+    }
+
+    void flip_heights(Vector3[,] points) {
+        for (int i = 0; i < points.GetLength(0); i++) {
+            for (int j = 0; j < points.GetLength(1); j++) {
+                points[i,j].y *= -1;
+            }
+        }
+    }
+    void OnDrawGizmosSelected() {
+        /*testing left wing points: */
+        // Vector3 [,] points = {
+        //     {new Vector3(0,0,2), new Vector3(0,0,2.5f), new Vector3(0,0,3), new Vector3(0,0,5),},
+        //     {new Vector3(-1,0,2.5f), new Vector3(-1,0,3f), new Vector3(-1,0,3.5f), new Vector3(-1,0,5),},
+
+        //     {new Vector3(-2,0,3f), new Vector3(-2,0,3.5f), new Vector3(-2,0,4f), new Vector3(-2,0,5),},
+
+        //     {new Vector3(-3,0,3.5f), new Vector3(-3,0,4f), new Vector3(-3,0,4.5f), new Vector3(-3,0,5),},
+        // };
+        Vector3[,] points = get_fancy_wing_points();
+        foreach (Vector3 point in points) {
+            Gizmos.DrawSphere(point, 0.1f);
+        }
+
+        
         // Vector3[] points = {new Vector3(0,0,7), new Vector3(1,2,7), new Vector3(2,2,7), new Vector3(3,0,7),};
         // draw_helper(points);
         
