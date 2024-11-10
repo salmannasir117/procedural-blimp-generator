@@ -12,7 +12,12 @@ public class main_script : MonoBehaviour
         FANCY = 1,
         CURVY = 2,
     }
-
+    int num_tails = 3;
+    enum tail_type {
+        ORIGINAL = 0,
+        DOLPHIN = 1,
+        CAPE = 2,
+    }
 
     Color[] plane_colors = 
     {
@@ -33,8 +38,11 @@ public class main_script : MonoBehaviour
     // so, if HULL_RESOLUTION = 10, then each batch in the hull has 10 * 10 = 100 verticies. 
     // HULL is considered 3 pieces: top, bottom, back
     // WING is 2 pieces: left and right wing. 
+    //10 -> performance mode
+    //20 -> quality mode
     const int WING_RESOLUTION = 10;
-    const int HULL_RESOLUTION = 15;
+    const int HULL_RESOLUTION = 10;
+    const int TAIL_RESOLUTION = 10;
     void Start()
     {
         Random.InitState(seed);
@@ -47,6 +55,11 @@ public class main_script : MonoBehaviour
         //     Debug.Log(Random.Range(0, num_wings));
         // }
         wing = wing_type.CURVY;
+
+        int tail_number = Random.Range(0, num_tails);
+        tail_type tail_t = (tail_type) tail_number;
+        tail_t = tail_type.ORIGINAL;
+
         // Color selected_color = Color.green;
         Color selected_color = plane_colors[Random.Range(0, plane_colors.Length)];
         // selected_color = plane_colors[4];
@@ -56,6 +69,7 @@ public class main_script : MonoBehaviour
         GameObject back_hull = generate_back_hull_go(parent, selected_color);
         GameObject left_wing = generate_left_wing(parent, selected_color, wing);
         GameObject right_wing = generate_right_wing(parent, selected_color, wing);
+        GameObject tail = generate_tail(parent, selected_color, tail_t);
         
         //test transformations. 
         //https://docs.unity3d.com/ScriptReference/Transform.html
@@ -223,6 +237,59 @@ public class main_script : MonoBehaviour
 
     }
 
+    Vector3 [,] get_original_tail_points() {
+        Vector3 [,] points = {
+            {new Vector3(0,0,7), new Vector3(1,2,7), new Vector3(2,2,7), new Vector3(3,0,7),},
+            {new Vector3(0,1,7.5f), new Vector3(1,2,7.5f), new Vector3(2,2,7.5f), new Vector3(3,1,7.5f),},
+            {new Vector3(0,1.2f,8f), new Vector3(1,2,8f), new Vector3(2,2,8f), new Vector3(3,1.2f,8f),},
+            {new Vector3(0,1.4f,8.5f), new Vector3(1,2,8.5f), new Vector3(2,2,8.5f), new Vector3(3,1.4f,8.5f),},
+        };
+        return points;
+    }
+
+    Vector3 [,] get_dolphin_tail_points() {
+        Vector3 [,] points = {
+            {new Vector3(0,0,7), new Vector3(1,2,7), new Vector3(2,2,7), new Vector3(3,0,7),},
+            {new Vector3(0.5f,1,7.5f), new Vector3(1,2.25f,7.5f), new Vector3(2,2.25f,7.5f), new Vector3(2.5f,1,7.5f),},
+            {new Vector3(1.0f,1.2f,8f), new Vector3(1,2.25f,8f), new Vector3(2,2.25f,8f), new Vector3(2.0f,1.2f,8f),},
+            {new Vector3(1.5f,1.4f,8.5f), new Vector3(1,2,8.5f), new Vector3(2,2,8.5f), new Vector3(1.5f,1.4f,8.5f),},
+        };
+        return points;
+    }
+
+    Vector3 [,] get_cape_tail_points() {
+        Vector3 [,] points = {
+            {new Vector3(0,0,7), new Vector3(1,2,7), new Vector3(2,2,7), new Vector3(3,0,7),},
+            {new Vector3(-0.5f,0,7.5f), new Vector3(0.4f,2f,7.5f), new Vector3(2.6f,2f,7.5f), new Vector3(3.5f,0f,7.5f),},
+            {new Vector3(-1.0f,0.25f,8f), new Vector3(0.4f,2f,8f), new Vector3(2.6f,2f,8f), new Vector3(4.0f,0.25f,8f),},
+            {new Vector3(-1.5f,0.5f,8.5f), new Vector3(1,2,8.5f), new Vector3(2,2,8.5f), new Vector3(4.5f,0.5f,8.5f),},
+        };
+        return points;
+    }
+    GameObject generate_tail(GameObject parent, Color color, tail_type tail) {
+    Vector3 [,] points; 
+    switch (tail) {
+        case tail_type.CAPE: {
+            points = get_cape_tail_points();
+            break;
+        }
+        case tail_type.DOLPHIN: {
+            points = get_dolphin_tail_points();
+            break;
+        }
+        case tail_type.ORIGINAL:
+        default: {
+            points = get_original_tail_points();
+            break;
+        }
+    }
+    
+    BezierPatch bp = new BezierPatch(points, TAIL_RESOLUTION);
+    GameObject go = bp.get_game_object("tail", color);
+    go.transform.parent = parent.transform;
+    return go;
+}
+
     void reverse_points(Vector3[,] points) {
         //reverse each row of points.
         for (int i = 0; i < points.GetLength(0); i++) {
@@ -251,7 +318,7 @@ public class main_script : MonoBehaviour
 
         //     {new Vector3(-3,0,3.5f), new Vector3(-3,0,4f), new Vector3(-3,0,4.5f), new Vector3(-3,0,5),},
         // };
-        Vector3[,] points = get_curvy_wing_points();
+        Vector3[,] points = get_cape_tail_points();
         foreach (Vector3 point in points) {
             Gizmos.DrawSphere(point, 0.1f);
         }
