@@ -43,6 +43,8 @@ public class main_script : MonoBehaviour
     const int WING_RESOLUTION = 10;
     const int HULL_RESOLUTION = 10;
     const int TAIL_RESOLUTION = 10;
+    const float TAIL_MIN_SCALE = 0.9f;
+    const float TAIL_MAX_SCALE = 1.1f;
     void Start()
     {
         Random.InitState(seed);
@@ -54,11 +56,11 @@ public class main_script : MonoBehaviour
         // for (int i = 0; i < 5; i++) {
         //     Debug.Log(Random.Range(0, num_wings));
         // }
-        wing = wing_type.CURVY;
+        wing = wing_type.ORIGINAL;
 
         int tail_number = Random.Range(0, num_tails);
         tail_type tail_t = (tail_type) tail_number;
-        tail_t = tail_type.ORIGINAL;
+        tail_t = tail_type.CAPE;
 
         // Color selected_color = Color.green;
         Color selected_color = plane_colors[Random.Range(0, plane_colors.Length)];
@@ -67,9 +69,9 @@ public class main_script : MonoBehaviour
         GameObject top_hull  = generate_top_hull_go(parent, selected_color);
         GameObject bottom_hull = generate_bottom_hull_go(parent, selected_color);
         GameObject back_hull = generate_back_hull_go(parent, selected_color);
-        GameObject left_wing = generate_left_wing(parent, selected_color, wing);
-        GameObject right_wing = generate_right_wing(parent, selected_color, wing);
-        GameObject tail = generate_tail(parent, selected_color, tail_t);
+        GameObject left_wing = generate_left_wing(parent, selected_color, wing, new Vector3(1, 1.2f, 1.2f));
+        GameObject right_wing = generate_right_wing(parent, selected_color, wing, new Vector3(1, 1.2f, 1.2f));
+        GameObject tail = generate_tail(parent, selected_color, tail_t, new Vector3(1, 0.8f, 1.2f));
         
         //test transformations. 
         //https://docs.unity3d.com/ScriptReference/Transform.html
@@ -179,7 +181,7 @@ public class main_script : MonoBehaviour
             {new Vector3(-4, height / 2 -0.5f, 4.5f), new Vector3(-4, height / 2, 5.25f), new Vector3(-4, height / 2,5.75f), new Vector3(-4,height / 2,6.25f),},
         };
     }
-    GameObject generate_left_wing(GameObject parent, Color color, wing_type wing) {
+    GameObject generate_left_wing(GameObject parent, Color color, wing_type wing, Vector3 scale) {
         Vector3 [,] points; 
         switch (wing) {
             case wing_type.CURVY: {
@@ -196,6 +198,12 @@ public class main_script : MonoBehaviour
                 break;
             }
         }
+
+        for (int i = 1; i < points.GetLength(0); i++) {
+            for (int j = 0; j < points.GetLength(1); j++) {
+                points[i,j].Scale(scale);
+            }
+        }
         
         BezierPatch bp = new BezierPatch(points, WING_RESOLUTION);
         GameObject go = bp.get_game_object("left wing", color);
@@ -203,7 +211,7 @@ public class main_script : MonoBehaviour
         return go;
     }
     
-    GameObject generate_right_wing(GameObject parent, Color color, wing_type wing) {
+    GameObject generate_right_wing(GameObject parent, Color color, wing_type wing, Vector3 scale) {
         // Vector3 rotate;
         Vector3 [,] points; 
         switch (wing) {
@@ -221,6 +229,13 @@ public class main_script : MonoBehaviour
                 break;
             }
         }
+
+        for (int i = 1; i < points.GetLength(0); i++) {
+            for (int j = 0; j < points.GetLength(1); j++) {
+                points[i,j].Scale(scale);
+            }
+        }
+        
         reverse_points(points);
         flip_heights(points);   //for when i rotate about the z axis
         BezierPatch bp = new BezierPatch(points, WING_RESOLUTION);
@@ -266,7 +281,7 @@ public class main_script : MonoBehaviour
         };
         return points;
     }
-    GameObject generate_tail(GameObject parent, Color color, tail_type tail) {
+    GameObject generate_tail(GameObject parent, Color color, tail_type tail, Vector3 scale) {
     Vector3 [,] points; 
     switch (tail) {
         case tail_type.CAPE: {
@@ -283,7 +298,11 @@ public class main_script : MonoBehaviour
             break;
         }
     }
-    
+    for (int i = 1; i < points.GetLength(0); i++) {
+        for (int j = 0; j < points.GetLength(1); j++) {
+            points[i,j].Scale(scale);
+        }
+    }
     BezierPatch bp = new BezierPatch(points, TAIL_RESOLUTION);
     GameObject go = bp.get_game_object("tail", color);
     go.transform.parent = parent.transform;
