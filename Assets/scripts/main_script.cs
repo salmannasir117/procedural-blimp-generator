@@ -45,39 +45,54 @@ public class main_script : MonoBehaviour
     const int TAIL_RESOLUTION = 10;
     const float TAIL_MIN_SCALE = 0.9f;
     const float TAIL_MAX_SCALE = 1.1f;
+    
+    const float WING_MIN_SCALE = 0.8f;
+    const float WING_MAX_SCALE = 1.2f;    
     void Start()
     {
         Random.InitState(seed);
-       
-        int wing_number = Random.Range(0, num_wings);
-        wing_type wing = (wing_type) wing_number;
-        // Debug.Log(wing_number);
-        // Debug.Log(wing);
-        // for (int i = 0; i < 5; i++) {
-        //     Debug.Log(Random.Range(0, num_wings));
-        // }
-        wing = wing_type.ORIGINAL;
+        float plane_space = 10.0f;
+        //for each plane:
+        //generate random wing type
+        //generate random tail type
+        //generate color
+        //generate wing scale
+        //generate tail scale
+        //generate plane
+        for (int i = 0; i < 5; i++) {
+            int plane_number = i + 1;
+            //select wing type & scale
+            int wing_number = Random.Range(0, num_wings);
+            wing_type wing = (wing_type) wing_number;
+            float wing_scale = Random.value * (WING_MAX_SCALE - WING_MIN_SCALE) + WING_MIN_SCALE;
 
-        int tail_number = Random.Range(0, num_tails);
-        tail_type tail_t = (tail_type) tail_number;
-        tail_t = tail_type.CAPE;
 
-        // Color selected_color = Color.green;
-        Color selected_color = plane_colors[Random.Range(0, plane_colors.Length)];
-        // selected_color = plane_colors[4];
-        GameObject parent = new GameObject("parent");
-        GameObject top_hull  = generate_top_hull_go(parent, selected_color);
-        GameObject bottom_hull = generate_bottom_hull_go(parent, selected_color);
-        GameObject back_hull = generate_back_hull_go(parent, selected_color);
-        GameObject left_wing = generate_left_wing(parent, selected_color, wing, new Vector3(1, 1.2f, 1.2f));
-        GameObject right_wing = generate_right_wing(parent, selected_color, wing, new Vector3(1, 1.2f, 1.2f));
-        GameObject tail = generate_tail(parent, selected_color, tail_t, new Vector3(1, 0.8f, 1.2f));
-        
-        //test transformations. 
-        //https://docs.unity3d.com/ScriptReference/Transform.html
-        //localScale, Translate, Rotate (relativeTo = Space.self | Space.world, RotateAround
-        // parent.transform.Translate(new Vector3(1, 2, 0));
-        // parent.transform.localScale = new Vector3(2, 1, 1);
+            //select tail type & scale
+            int tail_number = Random.Range(0, num_tails);
+            tail_type tail_t = (tail_type) tail_number;
+            float tail_scale = Random.value * (TAIL_MAX_SCALE - TAIL_MIN_SCALE) + TAIL_MIN_SCALE;
+
+    
+
+            // Select random color
+            Color selected_color = plane_colors[Random.Range(0, plane_colors.Length)];
+            // selected_color = plane_colors[4];
+            GameObject parent = new GameObject("plane " + plane_number);
+            GameObject top_hull  = generate_top_hull_go(parent, selected_color);
+            GameObject bottom_hull = generate_bottom_hull_go(parent, selected_color);
+            GameObject back_hull = generate_back_hull_go(parent, selected_color);
+            GameObject left_wing = generate_left_wing(parent, selected_color, wing, new Vector3(1, 1.2f, 1.2f));
+            GameObject right_wing = generate_right_wing(parent, selected_color, wing, new Vector3(1, 1.2f, 1.2f));
+            GameObject tail = generate_tail(parent, selected_color, tail_t, new Vector3(1, 0.8f, 1.2f));
+
+            parent.transform.Translate(new Vector3(i * plane_space, 0, 0));
+            
+            //test transformations. 
+            //https://docs.unity3d.com/ScriptReference/Transform.html
+            //localScale, Translate, Rotate (relativeTo = Space.self | Space.world, RotateAround
+            // parent.transform.Translate(new Vector3(1, 2, 0));
+            // parent.transform.localScale = new Vector3(2, 1, 1);
+        }
 
     }
 
@@ -235,7 +250,7 @@ public class main_script : MonoBehaviour
                 points[i,j].Scale(scale);
             }
         }
-        
+
         reverse_points(points);
         flip_heights(points);   //for when i rotate about the z axis
         BezierPatch bp = new BezierPatch(points, WING_RESOLUTION);
