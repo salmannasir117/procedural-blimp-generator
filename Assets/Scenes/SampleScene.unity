@@ -351,9 +351,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   seed: 8080
-  WING_RESOLUTION: 20
-  HULL_RESOLUTION: 20
-  TAIL_RESOLUTION: 20
+  resolution: 20
 --- !u!4 &2021844319
 Transform:
   m_ObjectHideFlags: 0

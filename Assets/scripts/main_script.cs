@@ -39,9 +39,10 @@ public class main_script : MonoBehaviour
     // WING is 2 pieces: left and right wing. 
     //10 -> performance mode
     //20 -> quality mode
-    public int WING_RESOLUTION = 20;
-    public int HULL_RESOLUTION = 20;
-    public int TAIL_RESOLUTION = 20;
+    public int resolution = 20;
+    int WING_RESOLUTION;
+    int HULL_RESOLUTION;
+    int TAIL_RESOLUTION;
     const float TAIL_MIN_SCALE = 0.9f;
     const float TAIL_MAX_SCALE = 1.1f;
     
@@ -51,7 +52,7 @@ public class main_script : MonoBehaviour
     {
         Random.InitState(seed);
         float plane_space = 12.5f;
-        
+        TAIL_RESOLUTION = HULL_RESOLUTION = WING_RESOLUTION = resolution;
         //for each plane:
         //generate random wing type
         //generate random tail type
