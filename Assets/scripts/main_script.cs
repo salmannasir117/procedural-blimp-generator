@@ -10,8 +10,31 @@ public class main_script : MonoBehaviour
     enum wing_type {
         ORIGINAL = 0,
         FANCY = 1,
-        OPTION_THREE = 2,
+        CURVY = 2,
     }
+
+
+    Color[] plane_colors = 
+    {
+        //plane grey
+        new Color(196,203,212) / 255.0f,
+        //spirit yellow
+        new Color(255, 236, 0) / 255.0f,
+        //jet blue
+        new Color(0, 56, 118) / 255.0f,
+        //La compagnie light blue
+        new Color(148, 196, 228) / 255.0f,
+        //macy's red (they have floats/thanksgiving day parade)
+        new Color(234, 0, 0) / 255.0f,
+    };
+
+    // to allow our computers to not blow up.
+    // this is the number of points per bezier curve on a bezier curve.
+    // so, if HULL_RESOLUTION = 10, then each batch in the hull has 10 * 10 = 100 verticies. 
+    // HULL is considered 3 pieces: top, bottom, back
+    // WING is 2 pieces: left and right wing. 
+    const int WING_RESOLUTION = 10;
+    const int HULL_RESOLUTION = 15;
     void Start()
     {
         Random.InitState(seed);
@@ -23,8 +46,10 @@ public class main_script : MonoBehaviour
         // for (int i = 0; i < 5; i++) {
         //     Debug.Log(Random.Range(0, num_wings));
         // }
-        wing = wing_type.FANCY;
-        Color selected_color = Color.green;
+        wing = wing_type.CURVY;
+        // Color selected_color = Color.green;
+        Color selected_color = plane_colors[Random.Range(0, plane_colors.Length)];
+        // selected_color = plane_colors[4];
         GameObject parent = new GameObject("parent");
         GameObject top_hull  = generate_top_hull_go(parent, selected_color);
         GameObject bottom_hull = generate_bottom_hull_go(parent, selected_color);
@@ -53,7 +78,7 @@ public class main_script : MonoBehaviour
 
     GameObject generate_top_hull_go(GameObject parent, Color color) {
         Vector3[,] top_hull_points = get_top_hull_points();
-        BezierPatch top_hull_patch = new BezierPatch(top_hull_points, 10);
+        BezierPatch top_hull_patch = new BezierPatch(top_hull_points, HULL_RESOLUTION);
         // Mesh m = patch.get_mesh();
         GameObject top_hull_go = top_hull_patch.get_game_object("top hull", color);
         top_hull_go.transform.parent = parent.transform;
@@ -93,7 +118,7 @@ public class main_script : MonoBehaviour
             {new Vector3(0,-0,7), new Vector3(1,0,7), new Vector3(2,0,7), new Vector3(3,0,7),},
             {new Vector3(0,-0,7), new Vector3(1,-2,7), new Vector3(2,-2,7), new Vector3(3,-0,7),},
         };
-        BezierPatch back_hull_patch = new BezierPatch(back_hull_points, 10);
+        BezierPatch back_hull_patch = new BezierPatch(back_hull_points, HULL_RESOLUTION);
         GameObject back_hull_go = back_hull_patch.get_game_object("back hull", color);
         back_hull_go.transform.parent = parent.transform;
         return back_hull_go;
@@ -120,9 +145,33 @@ public class main_script : MonoBehaviour
             {new Vector3(-3,1f,4.5f), new Vector3(-3,1f,5f), new Vector3(-3,1f,5.5f), new Vector3(-3,1f,6),},
         };
     }
+
+    Vector3[,] get_curvy_wing_points() {
+        float height = 3;
+        // return new Vector3[,]{
+        //     {new Vector3(0,0,2), new Vector3(0,0,2.5f), new Vector3(0,0,3f), new Vector3(0,0,3.5f),},
+        //     {new Vector3(-1, height, 2.5f), new Vector3(-1, height, 3f), new Vector3(-1, height, 3.5f), new Vector3(-1, height, 4.0f),},
+
+        //     {new Vector3(-2.8f, -height, 3.0f), new Vector3(-2.8f, -height, 3.5f), new Vector3(-2.8f, -height, 4.0f), new Vector3(-2.8f, -height, 4.5f),},
+
+        //     {new Vector3(-3, height / 2,4.5f), new Vector3(-3, height / 2, 5f), new Vector3(-3, height / 2,5.5f), new Vector3(-3,height / 2,6),},
+        // };
+        return new Vector3[,]{
+            {new Vector3(0, -0.5f,2), new Vector3(0,0,2.75f), new Vector3(0,0,3.5f), new Vector3(0,0,4.25f),},
+            {new Vector3(-1, height -0.5f, 2.75f), new Vector3(-1, height, 3.5f), new Vector3(-1, height, 4.25f), new Vector3(-1, height, 5f),},
+
+            {new Vector3(-2.8f, -height -0.5f, 3.5f), new Vector3(-2.8f, -height, 4.25f), new Vector3(-2.8f, -height, 5.0f), new Vector3(-2.8f, -height, 5.75f),},
+
+            {new Vector3(-4, height / 2 -0.5f, 4.5f), new Vector3(-4, height / 2, 5.25f), new Vector3(-4, height / 2,5.75f), new Vector3(-4,height / 2,6.25f),},
+        };
+    }
     GameObject generate_left_wing(GameObject parent, Color color, wing_type wing) {
         Vector3 [,] points; 
         switch (wing) {
+            case wing_type.CURVY: {
+                points = get_curvy_wing_points();
+                break;
+            }
             case wing_type.FANCY: {
                 points = get_fancy_wing_points();
                 break;
@@ -134,16 +183,20 @@ public class main_script : MonoBehaviour
             }
         }
         
-        BezierPatch bp = new BezierPatch(points, 10);
+        BezierPatch bp = new BezierPatch(points, WING_RESOLUTION);
         GameObject go = bp.get_game_object("left wing", color);
         go.transform.parent = parent.transform;
         return go;
     }
     
     GameObject generate_right_wing(GameObject parent, Color color, wing_type wing) {
-        Vector3 rotate;
+        // Vector3 rotate;
         Vector3 [,] points; 
         switch (wing) {
+             case wing_type.CURVY: {
+                points = get_curvy_wing_points();
+                break;
+            }
             case wing_type.FANCY: {
                 points = get_fancy_wing_points();
                 break;
@@ -156,8 +209,8 @@ public class main_script : MonoBehaviour
         }
         reverse_points(points);
         flip_heights(points);   //for when i rotate about the z axis
-        BezierPatch bp = new BezierPatch(points, 10);
-        GameObject go = bp.get_game_object("left wing", color);
+        BezierPatch bp = new BezierPatch(points, WING_RESOLUTION);
+        GameObject go = bp.get_game_object("right wing", color);
         go.transform.Translate(new Vector3(3, 0, 0));
         go.transform.Rotate(new Vector3(0, 0, 180));
         go.transform.parent = parent.transform;
@@ -198,7 +251,7 @@ public class main_script : MonoBehaviour
 
         //     {new Vector3(-3,0,3.5f), new Vector3(-3,0,4f), new Vector3(-3,0,4.5f), new Vector3(-3,0,5),},
         // };
-        Vector3[,] points = get_fancy_wing_points();
+        Vector3[,] points = get_curvy_wing_points();
         foreach (Vector3 point in points) {
             Gizmos.DrawSphere(point, 0.1f);
         }
