@@ -319,7 +319,7 @@ GameObject:
   - component: {fileID: 2021844319}
   - component: {fileID: 2021844318}
   m_Layer: 0
-  m_Name: Monster Generator
+  m_Name: Plane Generator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -337,7 +337,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f197db93c718443aa0b9d27021b5852, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 100
+  seed: 6969
 --- !u!4 &2021844319
 Transform:
   m_ObjectHideFlags: 0

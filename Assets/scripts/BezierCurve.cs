@@ -15,14 +15,6 @@ public class BezierCurve
         P3 = p3;
         P4 = p4;
         num_points = n; //to account for i = n / num_points = 1
-        // points = new Vector3[n];
-
-        // for (int i = 0; i < n; i++) {
-        //     float t = i / (float) (n - 1);
-        //     Vector3 curr = new Vector3();
-        //     curr = B1(t) * P1 + B2(t) * P2 + B3(t) * P3 + B4(t) * P4;
-        //     points[i] = curr;
-        // }        
     }
 
     //weights based on parameter t \in [0,1]
@@ -48,19 +40,11 @@ public class BezierCurve
     }
     
     public Vector3 get_point(int n) {
-        // if (n < 0 || n >= num_points) {
-        //     Debug.LogError("invalid point index");
-        //     return null;
-        // }
-        // return points[n];
-
         //generate at runtime
         float t = n / (float) (num_points - 1);
         Vector3 curr = new Vector3();
         curr = B1(t) * P1 + B2(t) * P2 + B3(t) * P3 + B4(t) * P4;
         return curr;
-        
-
     }
 
     public int get_num_points() {
