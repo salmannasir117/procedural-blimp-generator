@@ -39,9 +39,9 @@ public class main_script : MonoBehaviour
     // WING is 2 pieces: left and right wing. 
     //10 -> performance mode
     //20 -> quality mode
-    const int WING_RESOLUTION = 10;
-    const int HULL_RESOLUTION = 10;
-    const int TAIL_RESOLUTION = 10;
+    public int WING_RESOLUTION = 20;
+    public int HULL_RESOLUTION = 20;
+    public int TAIL_RESOLUTION = 20;
     const float TAIL_MIN_SCALE = 0.9f;
     const float TAIL_MAX_SCALE = 1.1f;
     
