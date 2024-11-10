@@ -7,3 +7,10 @@ You will see different wings and tails that can be scaled +/- 20%, all in differ
 I aimed for a cartoony, silly artstyle while still having everything attach properly.
 
 Thank you and I hope you enjoy!
+
+fun seeds:
+8080
+5768
+11011
+1234321
+234987

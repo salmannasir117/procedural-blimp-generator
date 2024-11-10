@@ -45,12 +45,12 @@ public class main_script : MonoBehaviour
     const float TAIL_MIN_SCALE = 0.9f;
     const float TAIL_MAX_SCALE = 1.1f;
     
-    const float WING_MIN_SCALE = 0.8f;
-    const float WING_MAX_SCALE = 1.2f;    
+    const float WING_MIN_SCALE = 0.75f;
+    const float WING_MAX_SCALE = 1.25f;    
     void Start()
     {
         Random.InitState(seed);
-        float plane_space = 10.0f;
+        float plane_space = 12.5f;
         
         //for each plane:
         //generate random wing type
