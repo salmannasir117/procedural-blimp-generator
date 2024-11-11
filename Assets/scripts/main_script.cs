@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using JetBrains.Annotations;
 using UnityEngine;
 
 public class main_script : MonoBehaviour
@@ -47,12 +49,21 @@ public class main_script : MonoBehaviour
     const float TAIL_MAX_SCALE = 1.1f;
     
     const float WING_MIN_SCALE = 0.75f;
-    const float WING_MAX_SCALE = 1.25f;    
+    const float WING_MAX_SCALE = 1.25f;  
+
+    public enum flight_pattern {
+        PARKED,
+        FLYING,
+    }  
+
+    public flight_pattern f_pattern = flight_pattern.PARKED;
     void Start()
     {
         Random.InitState(seed);
-        float plane_space = 12.5f;
+        float plane_space = 12.5f;      //for when parked
         TAIL_RESOLUTION = HULL_RESOLUTION = WING_RESOLUTION = resolution;
+
+        HashSet<Vector3> plane_pos = new HashSet<Vector3>();
         //for each plane:
         //generate random wing type
         //generate random tail type
@@ -85,7 +96,41 @@ public class main_script : MonoBehaviour
             GameObject right_wing = generate_right_wing(parent, selected_color, wing, new Vector3(1, 1.2f, 1.2f));
             GameObject tail = generate_tail(parent, selected_color, tail_t, new Vector3(1, 0.8f, 1.2f));
 
-            parent.transform.Translate(new Vector3(i * plane_space, 0, 0));
+            if (f_pattern == flight_pattern.PARKED) {
+                parent.transform.Translate(new Vector3(i * plane_space, 0, 0));
+            } else if (f_pattern == flight_pattern.FLYING) {
+                
+                //generate position using dart throwing 
+                float bounds = 25;      //sample in a cube that is centered around (0,0,0) and has side length 2 * bounds
+                float min_dist = 10;    //how far apart each plane should be on minimum
+                bool valid = false;     //marker to know when we have valid posiiton
+                Vector3 translate = new Vector3(0,0,0);
+                while (!valid) {
+                    translate = new Vector3(Random.value * bounds * 2 - bounds, Random.value * bounds* 2 - bounds, Random.value * bounds * 2 - bounds);
+                    valid = true;
+                    foreach (Vector3 pos in plane_pos) {                        //check distance with each generated plane
+                        if (Vector3.Distance(translate, pos) < min_dist) {      //if too close, have to generate new point
+                            valid = false;
+                        }
+                    }
+                }
+                parent.transform.Translate(translate);                          //move the plane
+
+                //generate rotations to make fly
+                float max_x = 20;
+                float min_x = -20;
+                float max_y = 20;
+                float min_y = -20;
+                float max_z = 45;
+                float min_z = -45;
+
+                float rotate_x = Random.value * (max_x - min_x) + min_x;
+                float rotate_y = Random.value * (max_y - min_y) + min_y;
+                float rotate_z = Random.value * (max_z - min_z) + min_z;
+
+                parent.transform.Rotate(new Vector3(rotate_x, rotate_y, rotate_z));     //rotate the plane randomly
+                plane_pos.Add(translate);                                               //add plane to checklist
+            }
             
             //test transformations. 
             //https://docs.unity3d.com/ScriptReference/Transform.html

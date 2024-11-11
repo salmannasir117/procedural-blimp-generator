@@ -352,6 +352,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   seed: 8080
   resolution: 20
+  f_pattern: 0
 --- !u!4 &2021844319
 Transform:
   m_ObjectHideFlags: 0
